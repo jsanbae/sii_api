@@ -2,6 +2,7 @@
 
 namespace Jsanbae\SIIAPI\Entities;
 
+use DateTimeImmutable;
 use Jsanbae\SIIAPI\Constants\RCV;
 use Jsanbae\SIIAPI\Constants\RCVType;
 use Jsanbae\SIIAPI\Contracts\Arrayable;
@@ -58,6 +59,9 @@ class LibroCompraResumen implements LibroResumen, Arrayable
             ];
         }
 
+        $fecha_creacion = !empty($data_cabecera->dcvFecCreacion) ? (DateTimeImmutable::createFromFormat('d/m/Y H:i:s', $data_cabecera->dcvFecCreacion))->format('Y-m-d H:i:s') : null;
+        $fecha_modificacion = !empty($data_cabecera->dcvFecModificacion) ? (DateTimeImmutable::createFromFormat('d/m/Y H:i:s', $data_cabecera->dcvFecModificacion))->format('Y-m-d H:i:s') : null;
+
         $this->data = [
             'rut_emisor' => $data_cabecera->dcvRutEmisor,
             'dv_emisor' => $data_cabecera->dcvDvEmisor,
@@ -65,8 +69,8 @@ class LibroCompraResumen implements LibroResumen, Arrayable
             'periodo' => $periodo,
             'mes' => $mes,
             'factor_proporcionalidad' => (float) $data_cabecera->dcvFctProp,
-            'fecha_creacion' => new \DateTimeImmutable($data_cabecera->dcvFecCreacion),
-            'fecha_modificacion' => new \DateTimeImmutable($data_cabecera->dcvFecModificacion),
+            'fecha_creacion' => $fecha_creacion,
+            'fecha_modificacion' => $fecha_modificacion,
             'total_documentos' => $_data_from_endpoint->totDocRes,
             'monto_exento' => $total_exento,
             'monto_neto' => $total_neto,
