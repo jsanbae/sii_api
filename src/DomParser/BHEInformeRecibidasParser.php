@@ -5,8 +5,9 @@ namespace Jsanbae\SIIAPI\DomParser;
 use DOMNode;
 use DOMDocument;
 use DOMNodeList;
+use DateTimeImmutable;
 
-class BHEInformeBoletasRecibidasParser
+class BHEInformeRecibidasParser
 {
     private $body;
     private $fields_configuration = [
@@ -32,10 +33,10 @@ class BHEInformeBoletasRecibidasParser
 
     public function __invoke():array
     {
-        return $this->BHEInformeBoletasRecibidasParser();
+        return $this->BHEInformeRecibidasParser();
     }
 
-    public function BHEInformeBoletasRecibidasParser():array
+    public function BHEInformeRecibidasParser():array
     {
         $doc = new DOMDocument();
         $doc->loadHtml($this->body);
@@ -80,9 +81,9 @@ class BHEInformeBoletasRecibidasParser
         $sanitized_value = trim(str_replace(['"', ';', '\'','(',')','formatMiles',',','.'], '', $valor));
 
         if ($this->fields_configuration[$boleta_key] === "int" && !empty($sanitized_value)) $sanitized_value = (int) $sanitized_value;
-        // if ($this->fields_configuration[$boleta_key] === "date" && !empty($sanitized_value)) $sanitized_value = new \DateTimeImmutable($sanitized_value);
+        if ($this->fields_configuration[$boleta_key] === "date" && !empty($sanitized_value)) $sanitized_value = DateTimeImmutable::createFromFormat('d/m/Y',$sanitized_value);
         if ($this->fields_configuration[$boleta_key] === "string" && !empty($sanitized_value)) $sanitized_value = (string) $sanitized_value;
-        if (empty($sanitized_value)) $sanitized_value = null;
+        if (empty($sanitized_value) && $sanitized_value != "0") $sanitized_value = null;
 
         $_boleta = array_merge($_boleta, [$boleta_key => $sanitized_value]);
 
@@ -104,9 +105,5 @@ class BHEInformeBoletasRecibidasParser
         return $script;
     }
 
-    private function sanitizeField($_field)
-    {
-
-    }
 
 }
