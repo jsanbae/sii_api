@@ -72,6 +72,11 @@ class BoletaHonorario implements Arrayable
         return $this->dv_emisor;
     }
 
+    public function getFullRut():string
+    {
+        return $this->rut_emisor . '-' . $this->dv_emisor;
+    }
+
     public function getNombreEmisor():string
     {
         return $this->nombre_emisor;
