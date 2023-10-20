@@ -11,6 +11,8 @@ use Jsanbae\SIIAPI\APICredentialAttributes;
 class BHEServiceTest extends TestCase
 {
     private $api_client;
+    private $periodo;
+    private $mes;
 
     use Comunas;
 
@@ -27,13 +29,16 @@ class BHEServiceTest extends TestCase
         $api_dv = $_ENV['SII_API_DV'];
         $api_password = $_ENV['SII_API_PASSWORD'];
 
+        $this->periodo = $_ENV['TEST_PERIODO'];
+        $this->mes = $_ENV['TEST_MES'];
+
         $credential = new APICredential($api_rut, $api_password, new APICredentialAttributes(['dv' => $api_dv]));
         $this->api_client = new SIIAPI($credential);
     }
 
     public function test_libro_honorarios()
     {
-        $libro = $this->api_client->BHE()->LibroHonorarios(2023, 5);
+        $libro = $this->api_client->BHE()->Libro($this->periodo, $this->mes);
 
         $this->assertFalse($libro->isEmpty());
     }

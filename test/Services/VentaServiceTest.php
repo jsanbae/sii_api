@@ -10,6 +10,8 @@ use Jsanbae\SIIAPI\APICredentialAttributes;
 class VentaServiceTest extends TestCase
 {
     private $api_client;
+    private $periodo;
+    private $mes;
 
     public function setUp():void
     {
@@ -24,13 +26,16 @@ class VentaServiceTest extends TestCase
         $api_dv = $_ENV['SII_API_DV'];
         $api_password = $_ENV['SII_API_PASSWORD'];
 
+        $this->periodo = $_ENV['TEST_PERIODO'];
+        $this->mes = $_ENV['TEST_MES'];
+
         $credential = new APICredential($api_rut, $api_password, new APICredentialAttributes(['dv' => $api_dv]));
         $this->api_client = new SIIAPI($credential);
     }
 
     public function test_libro()
     {
-        $libro = $this->api_client->Ventas()->Libro(2023, 10);
+        $libro = $this->api_client->Ventas()->Libro($this->periodo, $this->mes);
 
         $libro_data = $libro->toArray();
 
