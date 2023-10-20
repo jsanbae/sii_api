@@ -9,40 +9,40 @@ class LibroHonorariosResumen implements LibroResumen, Arrayable
 {
     private $resumen = [];
 
-    public function __construct(array $_data_from_endpoint)
+    public function __construct(array $_detalle_boletas)
     {       
-        $this->populate($_data_from_endpoint);
+        $this->populate($_detalle_boletas);
     }
 
-    private function populate(array $_data_from_endpoint):array
+    private function populate(array $_detalle_boletas):array
     {
-        $data_resumen = $_data_from_endpoint;
+        $data_resumen = $_detalle_boletas;
 
         if (is_null($data_resumen) || empty($data_resumen)) return [];
 
         $vigentes = 0;
         $anulados = 0;
-        $honorario_bruto = 0;
+        $bruto = 0;
         $retencion_terceros = 0;
         $retencion_contribuyente = 0;
-        $total_liquido = 0;
+        $pagado = 0;
 
-        foreach ($data_resumen as $data) {
-            $vigentes = ($data['estado'] === 'N') ? $vigentes + 1 : $vigentes;
-            $anulados = ($data['estado'] !== 'N') ? $anulados + 1 : $anulados;
-            $honorario_bruto = $honorario_bruto + $data['totalhonorarios'];
-            $retencion_terceros = $retencion_terceros + $data['retencion_receptor'];
-            $total_liquido = $total_liquido + $data['honorariosliquidos'];            
+        foreach ($data_resumen as $boleta) {
+            $vigentes = ($boleta->isVigente()) ? $vigentes + 1 : $vigentes;
+            $anulados = (!$boleta->isVigente()) ? $anulados + 1 : $anulados;
+            $bruto += $boleta->getBruto();
+            $retencion_terceros += $boleta->getRetencion();
+            $pagado += $boleta->getPagado();            
         }
         
         $this->resumen[] = [
             'cantidad_documentos' => count($data_resumen),
             'vigentes' => $vigentes,
             'anulados' => $anulados,
-            'honoriario_bruto' => $honorario_bruto,
+            'bruto' => $bruto,
             'retencion_terceros' => $retencion_terceros,
             'retencion_contribuyente' => $retencion_contribuyente,
-            'total_liquido' => $total_liquido
+            'pagado' => $pagado
         ];
         
         return $this->resumen;
@@ -52,5 +52,5 @@ class LibroHonorariosResumen implements LibroResumen, Arrayable
     {
         return $this->resumen;
     }
-
+    
 }
