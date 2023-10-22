@@ -35,7 +35,7 @@ class BHE implements Endpoint
         $endpoint = "https://loa.sii.cl/cgi_IMT/TMBCOC_InformeMensualBheRec.cgi?rut_arrastre=$rut&dv_arrastre=$dv&cbanoinformemensual=$_periodo&cbmesinformemensual=$_mes&pagina_solicitada=0";
         $referer = "https://loa.sii.cl/cgi_IMT/TMBCOC_InformeAnualBheRec.cgi?rut_arrastre=$rut&dv_arrastre=dv&cbanoinformeanual=$_periodo";
 
-        $client = new Client(['cookies' => true]);
+        $client = new Client(['cookies' => true, 'verify' => false]);
 
         $response = $client->request('GET', $endpoint, [
             RequestOptions::COOKIES => $this->auth_cookies_jar,
@@ -59,7 +59,7 @@ class BHE implements Endpoint
     public function BoletaRecibidaPDF(string $_codigo_barras, string $_cod39, string $_nombre_comuna): ResponseInterface 
     {
         $cookie_jar = new CookieJar();
-        $client = new Client(['cookies' => $cookie_jar]);
+        $client = new Client(['cookies' => $cookie_jar, 'verify' => false]);
 
         $response = $client->request('POST', 'https://loa.sii.cl/cgi_IMT/TMBCOT_ConsultaBoletaPdf.cgi', [
             RequestOptions::COOKIES => $this->auth_cookies_jar,
@@ -90,7 +90,7 @@ class BHE implements Endpoint
 
     public function  InformeBTEEmitidas(int $_periodo, int $_mes, int $_pagina = 1): ResponseInterface
     {
-        $client = new Client(['cookies' => true]);
+        $client = new Client(['cookies' => true, 'verify' => false]);
         
         if ($_mes < 10) $_mes = '0' . $_mes;
         

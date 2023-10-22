@@ -39,7 +39,7 @@ class AuthTest extends TestCase
     public function test_get_cookies_jar()
     {
         $cookies_jar = (new Auth($this->credential))->getAuthCookiesJar();
-        $csession_id = $cookies_jar->getCookieByName(AuthConstants::CSESSIONID_COOKIE_NAME)?->getValue();
+        $csession_id = $cookies_jar->getCookieByName(AuthConstants::CSESSIONID_COOKIE_NAME)->getValue();
         
         $this->assertNotEmpty($csession_id);
     }

@@ -34,7 +34,7 @@ class Auth implements Endpoint
     public function Login(): ResponseInterface 
     {
         $cookie_jar = new CookieJar();
-        $client = new Client(['cookies' => $cookie_jar]);
+        $client = new Client(['cookies' => $cookie_jar, 'verify' => false]);
         
         $response = $client->request('POST', AuthConstants::LOGIN_ENDPOINT, [
             RequestOptions::HEADERS => [

@@ -29,9 +29,9 @@ abstract class RCV implements Endpoint
         $this->type = $_type;
     }
 
-    public function LibroResumen(int $_periodo, int $_mes): ResponseInterface|UnauthorizedResourceException
+    public function LibroResumen(int $_periodo, int $_mes): ResponseInterface
     {
-        $client = new Client(['cookies' => true]);
+        $client = new Client(['cookies' => true, 'verify' => false]);
         
         if ($_mes < 10) $_mes = '0' . $_mes;
 
@@ -73,7 +73,7 @@ abstract class RCV implements Endpoint
 
     public function LibroDetalleByDocType(int $_tipo_doc, int $_periodo, int $_mes): ResponseInterface
     {
-        $client = new Client(['cookies' => true]);
+        $client = new Client(['cookies' => true, 'verify' => false]);
         
         if ($_mes < 10) $_mes = '0' . $_mes;
         
