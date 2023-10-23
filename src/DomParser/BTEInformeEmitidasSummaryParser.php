@@ -29,25 +29,27 @@ class BTEInformeEmitidasSummaryParser
         $doc->loadHtml($this->body);
 
         $tables = $doc->getElementsByTagName('table');
-        if ($tables->length == 0) return 0;
+        if ($tables->length == 0) return $summary;
 
-        $table = $tables[2];// totales
+        $table = $tables->item(2);// totales
 
         $filas = $table->getElementsByTagName('tr');
       
-        if ($filas->length == 0) return 0;
+        if ($filas->length == 0) return $summary;
 
-        $fila = $filas[0];
+        $fila = $filas->item(0);
 
         $columnas = $fila->getElementsByTagName('td');
         
-        if ($columnas->length == 0) return [];
+        if ($columnas->length == 0) return $summary;
         
-        $summary['total'] = (int) explode(':', $columnas[0]->nodeValue)[1];
-        $summary['vigentes'] = (int) explode(':', $columnas[1]->nodeValue)[1];
-        $summary['anuladas'] = (int) explode(':', $columnas[2]->nodeValue)[1];
+        $summary['total'] = (int) explode(':', $columnas->item(0)->nodeValue)[1];
+        $summary['vigentes'] = (int) explode(':', $columnas->item(1)->nodeValue)[1];
+        $summary['anuladas'] = (int) explode(':', $columnas->item(2)->nodeValue)[1];
         
-        preg_match_all('/\d+/', $columnas[3]->nodeValue,  $matches);
+        preg_match_all('/\d+/', $columnas->item(3)->nodeValue,  $matches);
+
+        if (count($matches[0]) == 0) return $summary;
 
         $summary['current_page'] = (int) $matches[0][0];
         $summary['total_pages'] = (int) $matches[0][1];
