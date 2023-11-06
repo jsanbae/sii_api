@@ -65,7 +65,7 @@ class LibroVentaResumen implements LibroResumen, Arrayable
         $this->data = [
             'rut_emisor' => $data_cabecera->dcvRutEmisor,
             'dv_emisor' => $data_cabecera->dcvDvEmisor,
-            'tipo' => RCVType::COMPRA,
+            'tipo' => RCVType::VENTA,
             'periodo' => $periodo,
             'mes' => $mes,
             'factor_proporcionalidad' => (float) $data_cabecera->dcvFctProp,
