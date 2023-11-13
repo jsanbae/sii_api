@@ -51,6 +51,9 @@ class BHEInformeRecibidasParser
         $boletas = [];
         $current_boleta_index = 0;
         foreach ($script_lines as $line) {
+            
+            if ("CantidadFilas=0;" === trim($line)) break;
+
             if (strpos($line, 'nroboleta_') !== false) {
                 $boleta = [];
                 $current_boleta_index++;
@@ -72,7 +75,7 @@ class BHEInformeRecibidasParser
     private function extractDatafromLine(string $_data_line, array $_boleta = []):array
     {
         $attributes = array_keys($this->fields_configuration);
-        
+
         if (!preg_match('/' . implode('|', $attributes) . '/i', $_data_line, $matches)) return $_boleta;
 
         [$clave, $valor] = explode('=', $_data_line);
@@ -97,7 +100,7 @@ class BHEInformeRecibidasParser
         foreach ($_scripts as $index => $script) {
             $script_str = $script->nodeValue;
 
-            if (strpos($script_str, 'nroboleta_') !== false) return $script;
+            if (strpos($script_str, 'var xml_values = new Array();') !== false) return $script;
 
             $script = null;
         }
