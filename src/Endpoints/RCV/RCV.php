@@ -29,13 +29,13 @@ abstract class RCV implements Endpoint
         $this->type = $_type;
     }
 
-    public function LibroResumen(int $_periodo, int $_mes): ResponseInterface
+    public function LibroResumen(int $_periodo, int $_mes)
     {
         $client = new Client(['cookies' => true, 'verify' => false]);
         
-        if ($_mes < 10) $_mes = '0' . $_mes;
+        $mes = str_pad($_mes, 2, '0', STR_PAD_LEFT);
 
-        $periodo_tributario = $_periodo.$_mes;
+        $periodo_tributario = $_periodo.$mes;
 
         $response = $client->request('POST', RCVConstants::RCV_RESUMEN_ENDPOINT, [
             RequestOptions::COOKIES => $this->auth_cookies_jar,
@@ -51,7 +51,7 @@ abstract class RCV implements Endpoint
             RequestOptions::JSON => [
                 'data' => [
                     'rutEmisor' => $this->credential->getUser(),
-                    'dvEmisor' => $this->credential->attributes()->getByName('dv'),
+                    'dvEmisor' => strtoupper($this->credential->attributes()->getByName('dv')),
                     "ptributario" => $periodo_tributario,
                     "estadoContab" => "REGISTRO",
                     "operacion" => $this->type,
@@ -127,5 +127,4 @@ abstract class RCV implements Endpoint
         return $response;
     }
 
-    
 }
