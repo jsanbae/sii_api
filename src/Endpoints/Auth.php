@@ -45,7 +45,7 @@ class Auth implements Endpoint
             ],
             RequestOptions::FORM_PARAMS => [
                 'rut' => $this->crendential->getUser(),
-                'dv' => $this->crendential->attributes()->getByName('dv'),
+                'dv' => strtoupper($this->crendential->attributes()->getByName('dv')),
                 'clave' => $this->crendential->getPassword(),
                 'referencia' => AuthConstants::LOGIN_REFERENCE,
                 'code' => AuthConstants::LOGIN_CODE,
