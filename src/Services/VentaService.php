@@ -24,7 +24,7 @@ class VentaService extends Service implements RCVService
         
         $detalle = new LibroVentaDetalle();
         
-        if (isset($resumen->toArray()['documentos'])) {
+        if (isset($resumen->toArray()['documentos']) && !empty($resumen->toArray()['documentos'])) {
             $docs_tipos = array_keys($resumen->toArray()['documentos']);
             foreach ($docs_tipos as $doc_tipo) {
                 $ventas_detalle_response = $this->endpoint->LibroDetalleByDocType($doc_tipo, $_periodo, $_mes);

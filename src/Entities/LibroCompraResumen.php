@@ -62,6 +62,8 @@ class LibroCompraResumen implements LibroResumen, Arrayable
             ];
         }
 
+        if (empty($documentos)) return [];
+
         $fecha_creacion = !empty($data_cabecera->dcvFecCreacion) ? (DateTimeImmutable::createFromFormat('d/m/Y H:i:s', $data_cabecera->dcvFecCreacion))->format('Y-m-d H:i:s') : null;
         $fecha_modificacion = !empty($data_cabecera->dcvFecModificacion) ? (DateTimeImmutable::createFromFormat('d/m/Y H:i:s', $data_cabecera->dcvFecModificacion))->format('Y-m-d H:i:s') : null;
 
