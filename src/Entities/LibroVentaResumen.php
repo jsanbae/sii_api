@@ -40,13 +40,16 @@ class LibroVentaResumen implements LibroResumen, Arrayable
         $documentos = [];
         
         foreach ($data_resumen as $resumen) {
+
+            if ($resumen->rsmnTotDoc == 0) continue;
+
             $total_exento += $resumen->rsmnMntExe;
             $total_neto += $resumen->rsmnMntNeto;
             $total_iva += $resumen->rsmnMntIVA;
             $total_no_recuperable += $resumen->rsmnMntIVANoRec;
             $total_uso_comun += $resumen->rsmnIVAUsoComun;
             $total_monto += $resumen->rsmnMntTotal;
-            
+
             $documentos[$resumen->rsmnTipoDocInteger]= [
                 'nombre' => $resumen->dcvNombreTipoDoc,
                 'total_documentos' => $resumen->rsmnTotDoc,
