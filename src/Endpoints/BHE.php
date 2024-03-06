@@ -30,7 +30,7 @@ class BHE implements Endpoint
     public function InformeBoletasRecibidas(int $_periodo, int $_mes): ResponseInterface
     {
         $rut = $this->credential->getUser();
-        $dv = $this->credential->attributes()->getByName('dv');
+        $dv = strtoupper($this->credential->attributes()->getByName('dv'));
 
         $endpoint = "https://loa.sii.cl/cgi_IMT/TMBCOC_InformeMensualBheRec.cgi?rut_arrastre=$rut&dv_arrastre=$dv&cbanoinformemensual=$_periodo&cbmesinformemensual=$_mes&pagina_solicitada=0";
         $referer = "https://loa.sii.cl/cgi_IMT/TMBCOC_InformeAnualBheRec.cgi?rut_arrastre=$rut&dv_arrastre=dv&cbanoinformeanual=$_periodo";
