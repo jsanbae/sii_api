@@ -25,9 +25,13 @@ class BTEInformeEmitidasSummaryParser
     {
         $summary = ['total' => 0, 'vigentes' => 0, 'anuladas' => 0, 'current_page' => 1, 'total_pages' => 1];
 
-        $doc = new DOMDocument();
-        $doc->loadHtml($this->body);
+        $sContent = mb_convert_encoding($this->body, 'HTML-ENTITIES', 'UTF-8');
+        $internalErrors = libxml_use_internal_errors(true);
+        $doc = new DOMDocument();      
+        $doc->loadHTML($sContent);
+        libxml_use_internal_errors($internalErrors);
 
+        
         $tables = $doc->getElementsByTagName('table');
         if ($tables->length == 0) return $summary;
 

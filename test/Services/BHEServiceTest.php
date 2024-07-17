@@ -7,6 +7,7 @@ use Jsanbae\SIIAPI\APICredential;
 
 use Jsanbae\SIIAPI\Concerns\Comunas;
 use Jsanbae\SIIAPI\APICredentialAttributes;
+use Jsanbae\SIIAPI\Endpoints\BHE;
 
 class BHEServiceTest extends TestCase
 {
@@ -40,6 +41,8 @@ class BHEServiceTest extends TestCase
     {
         $libro = $this->api_client->BHE()->Libro($this->periodo, $this->mes);
 
+        fwrite(STDERR, print_r($libro, TRUE));
+
         $this->assertFalse($libro->isEmpty());
     }
 
@@ -57,4 +60,5 @@ class BHEServiceTest extends TestCase
 
         $this->assertTrue(file_exists($file_name));
     }
+
 }
