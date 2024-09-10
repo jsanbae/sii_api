@@ -6,7 +6,6 @@ use Jsanbae\SIIAPI\APICredential;
 use Jsanbae\SIIAPI\Contracts\Endpoint;
 use Jsanbae\SIIAPI\Constants\BHE as BHEConstants;
 use Jsanbae\SIIAPI\Constants\Auth as AuthConstants;
-use Jsanbae\SIIAPI\Exceptions\AuthenticationFailedException;
 use Jsanbae\SIIAPI\Exceptions\UnauthorizedResourceException;
 
 use GuzzleHttp\Client;
@@ -37,20 +36,24 @@ class BHE implements Endpoint
         $referer = "https://loa.sii.cl/cgi_IMT/TMBCOC_InformeAnualBheRec.cgi?rut_arrastre=$rut&dv_arrastre=dv&cbanoinformeanual=$_periodo";
 
         $client = new Client(['cookies' => true, 'verify' => false]);
-
-        $response = $client->request('GET', $endpoint, [
-            RequestOptions::COOKIES => $this->auth_cookies_jar,
-            RequestOptions::HEADERS => [
-                'Content-Type' => 'text/html',
-                'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
-                'Accept-Language' => 'es-CL,es;q=0.8,en-US;q=0.5,en;q=0.3',
-                'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/117.0',
-                'Referer' => $referer,
-                // 'Referer' => BHEConstants::BHE_REFERER,
-                // 'Origin' =>  BHEConstants::BHE_ORIGIN,
-                'Connection' => 'keep-alive'
-            ],
-        ]);
+        
+        try {
+            $response = $client->request('GET', $endpoint, [
+                RequestOptions::COOKIES => $this->auth_cookies_jar,
+                RequestOptions::HEADERS => [
+                    'Content-Type' => 'text/html',
+                    'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+                    'Accept-Language' => 'es-CL,es;q=0.8,en-US;q=0.5,en;q=0.3',
+                    'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/117.0',
+                    'Referer' => $referer,
+                    // 'Referer' => BHEConstants::BHE_REFERER,
+                    // 'Origin' =>  BHEConstants::BHE_ORIGIN,
+                    'Connection' => 'keep-alive'
+                ],
+            ]);
+        } catch (\Throwable $t) {
+            throw new ConnectionErrorException("No se pudo conectar al recurso " . $t->getMessage());
+        }
 
         if ($response->getStatusCode() === 401) throw new UnauthorizedResourceException("No se pudo acceder al recurso por no estar autorizado");
         if ($response->getStatusCode() !== 200) throw new ConnectionErrorException("No se pudo conectar al recurso " . $response->getStatusCode());
@@ -63,26 +66,32 @@ class BHE implements Endpoint
         $cookie_jar = new CookieJar();
         $client = new Client(['cookies' => $cookie_jar, 'verify' => false]);
 
-        $response = $client->request('POST', 'https://loa.sii.cl/cgi_IMT/TMBCOT_ConsultaBoletaPdf.cgi', [
-            RequestOptions::COOKIES => $this->auth_cookies_jar,
-            RequestOptions::HEADERS => [
-                'Content-Type' => 'application/x-www-form-urlencoded',
-                'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/117.0',
-                'Accept-Language' => 'es-CL,es;q=0.8,en-US;q=0.5,en;q=0.3',
-                'Origin' => 'https://loa.sii.cl',
-                'Referer' => 'https://loa.sii.cl/cgi_IMT/TMBCOC_InformeMensualBheRec.cgi?cbanoinformemensual=2023&cbmesinformemensual=07&dv_arrastre=8&pagina_solicitada=0&rut_arrastre=76050762',
-            ],
-            RequestOptions::FORM_PARAMS => [
-                'origen' => 'RECIBIDOS',
-                'txt_codigobarras' => $_codigo_barras,
-                'txt_cod_39' => $_cod39,
-                'txt_descr_comuna' => $_nombre_comuna,
-                'veroriginal' => 'si',
-                'nro_boleta' => 0,
-                'CantidadFilas' => 13
-            ],
-        ]);
-    
+        try {
+            $response = $client->request('POST', 'https://loa.sii.cl/cgi_IMT/TMBCOT_ConsultaBoletaPdf.cgi', [
+                RequestOptions::COOKIES => $this->auth_cookies_jar,
+                RequestOptions::HEADERS => [
+                    'Content-Type' => 'application/x-www-form-urlencoded',
+                    'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/117.0',
+                    'Accept-Language' => 'es-CL,es;q=0.8,en-US;q=0.5,en;q=0.3',
+                    'Origin' => 'https://loa.sii.cl',
+                    'Referer' => 'https://loa.sii.cl/cgi_IMT/TMBCOC_InformeMensualBheRec.cgi?cbanoinformemensual=2023&cbmesinformemensual=07&dv_arrastre=8&pagina_solicitada=0&rut_arrastre=76050762',
+                ],
+                RequestOptions::FORM_PARAMS => [
+                    'origen' => 'RECIBIDOS',
+                    'txt_codigobarras' => $_codigo_barras,
+                    'txt_cod_39' => $_cod39,
+                    'txt_descr_comuna' => $_nombre_comuna,
+                    'veroriginal' => 'si',
+                    'nro_boleta' => 0,
+                    'CantidadFilas' => 13
+                ],
+            ]);
+            
+        } catch (\Throwable $t) {
+            throw new ConnectionErrorException("No se pudo conectar al recurso " . $t->getMessage());
+        }
+
+
         if ($response->getStatusCode() === 401) throw new UnauthorizedResourceException("No se pudo acceder al recurso por no estar autorizado");
         if ($response->getStatusCode() !== 200) throw new ConnectionErrorException("No se pudo conectar al recurso " . $response->getStatusCode());
     
@@ -100,18 +109,23 @@ class BHE implements Endpoint
         $endpoint = "https://zeus.sii.cl/cvc_cgi/bte/bte_indiv_cons2?DIA=1&MESM=$_mes&ANOM=$_periodo&TIPO=mensual&AUTEN=RUTCLAVE&CNTR=1&PAGINA=$_pagina";
         $referer = "https://zeus.sii.cl/cvc_cgi/bte/bte_indiv_cons2";
 
-        $response = $client->request('GET', $endpoint, [
-            RequestOptions::COOKIES => $this->auth_cookies_jar,
-            RequestOptions::HEADERS => [
-                'Content-Type' => 'text/html',
-                'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
-                'Accept-Language' => 'es-CL,es;q=0.8,en-US;q=0.5,en;q=0.3',
-                'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/117.0',
-                'Referer' => $referer,
-                'Sec-Fetch-User' => '?1',
-                'Connection' => 'keep-alive'
-            ],
-        ]);
+        try {
+
+            $response = $client->request('GET', $endpoint, [
+                RequestOptions::COOKIES => $this->auth_cookies_jar,
+                RequestOptions::HEADERS => [
+                    'Content-Type' => 'text/html',
+                    'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+                    'Accept-Language' => 'es-CL,es;q=0.8,en-US;q=0.5,en;q=0.3',
+                    'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/117.0',
+                    'Referer' => $referer,
+                    'Sec-Fetch-User' => '?1',
+                    'Connection' => 'keep-alive'
+                ],
+            ]);
+        } catch (\Throwable $t) {
+            throw new ConnectionErrorException("No se pudo conectar al recurso " . $t->getMessage());
+        }
 
         if ($response->getStatusCode() === 401) throw new UnauthorizedResourceException("No se pudo acceder al recurso por no estar autorizado");
         if ($response->getStatusCode() !== 200) throw new ConnectionErrorException("No se pudo conectar al recurso " . $response->getStatusCode());
