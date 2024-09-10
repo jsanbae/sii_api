@@ -18,7 +18,6 @@ class Auth implements Endpoint
     private $auth_cookies_jar;
     public function __construct(APICredential $_credential)
     {
-        // $this->crendential = ['rut' => 96750760, 'dv' => 1, 'clave' => 'LRV96750'];
         $this->crendential = $_credential;
     }
 

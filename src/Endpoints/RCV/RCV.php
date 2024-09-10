@@ -7,6 +7,7 @@ use Jsanbae\SIIAPI\Constants\Auth as AuthConstants;
 use Jsanbae\SIIAPI\Constants\RCVType;
 use Jsanbae\SIIAPI\Constants\RCV as RCVConstants;
 use Jsanbae\SIIAPI\Contracts\Endpoint;
+use Jsanbae\SIIAPI\Exceptions\ConnectionErrorException;
 use Jsanbae\SIIAPI\Exceptions\UnauthorizedResourceException;
 
 use GuzzleHttp\Client;
@@ -66,7 +67,8 @@ abstract class RCV implements Endpoint
             ],
         ]);
 
-        if ($response->getStatusCode() == 401) throw new UnauthorizedResourceException("No se pudo acceder al recurso por no estar autorizado");
+        if ($response->getStatusCode() === 401) throw new UnauthorizedResourceException("No se pudo acceder al recurso por no estar autorizado");
+        if ($response->getStatusCode() !== 200) throw new ConnectionErrorException("No se pudo conectar al recurso " . $response->getStatusCode());
 
         return $response;
     }
@@ -75,7 +77,7 @@ abstract class RCV implements Endpoint
     {
         $client = new Client(['cookies' => true, 'verify' => false]);
         
-        if ($_mes < 10) $_mes = '0' . $_mes;
+        $_mes = str_pad($_mes, 2, '0', STR_PAD_LEFT);
         
         $periodo_tributario = $_periodo.$_mes;
 
@@ -122,7 +124,8 @@ abstract class RCV implements Endpoint
             ],
         ]);
 
-        if ($response->getStatusCode() == 401) throw new UnauthorizedResourceException("No se pudo acceder al recurso por no estar autorizado");
+        if ($response->getStatusCode() === 401) throw new UnauthorizedResourceException("No se pudo acceder al recurso por no estar autorizado");
+        if ($response->getStatusCode() !== 200) throw new ConnectionErrorException("No se pudo conectar al recurso " . $response->getStatusCode());
 
         return $response;
     }

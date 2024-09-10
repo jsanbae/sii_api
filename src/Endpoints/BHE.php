@@ -12,6 +12,7 @@ use Jsanbae\SIIAPI\Exceptions\UnauthorizedResourceException;
 use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
 use GuzzleHttp\Cookie\CookieJar;
+use Jsanbae\SIIAPI\Exceptions\ConnectionErrorException;
 use Psr\Http\Message\ResponseInterface;
 
 class BHE implements Endpoint
@@ -51,7 +52,8 @@ class BHE implements Endpoint
             ],
         ]);
 
-        if ($response->getStatusCode() == 401) throw new UnauthorizedResourceException("No se pudo acceder al recurso por no estar autorizado");
+        if ($response->getStatusCode() === 401) throw new UnauthorizedResourceException("No se pudo acceder al recurso por no estar autorizado");
+        if ($response->getStatusCode() !== 200) throw new ConnectionErrorException("No se pudo conectar al recurso " . $response->getStatusCode());
 
         return $response;
     }
@@ -81,7 +83,8 @@ class BHE implements Endpoint
             ],
         ]);
     
-        if ($response->getStatusCode() != 200) throw new AuthenticationFailedException("Error al autenticar (" . $response->getStatusCode() . "), favor revise sus credenciales.");
+        if ($response->getStatusCode() === 401) throw new UnauthorizedResourceException("No se pudo acceder al recurso por no estar autorizado");
+        if ($response->getStatusCode() !== 200) throw new ConnectionErrorException("No se pudo conectar al recurso " . $response->getStatusCode());
     
         $this->auth_cookies_jar = $cookie_jar;
     
@@ -92,7 +95,7 @@ class BHE implements Endpoint
     {
         $client = new Client(['cookies' => true, 'verify' => false]);
         
-        if ($_mes < 10) $_mes = '0' . $_mes;
+        $_mes = str_pad($_mes, 2, '0', STR_PAD_LEFT);
         
         $endpoint = "https://zeus.sii.cl/cvc_cgi/bte/bte_indiv_cons2?DIA=1&MESM=$_mes&ANOM=$_periodo&TIPO=mensual&AUTEN=RUTCLAVE&CNTR=1&PAGINA=$_pagina";
         $referer = "https://zeus.sii.cl/cvc_cgi/bte/bte_indiv_cons2";
@@ -110,7 +113,8 @@ class BHE implements Endpoint
             ],
         ]);
 
-        if ($response->getStatusCode() == 401) throw new UnauthorizedResourceException("No se pudo acceder al recurso por no estar autorizado");
+        if ($response->getStatusCode() === 401) throw new UnauthorizedResourceException("No se pudo acceder al recurso por no estar autorizado");
+        if ($response->getStatusCode() !== 200) throw new ConnectionErrorException("No se pudo conectar al recurso " . $response->getStatusCode());
 
         return $response;     
     }
