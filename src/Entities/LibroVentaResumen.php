@@ -52,6 +52,8 @@ class LibroVentaResumen implements LibroResumen, Arrayable
 
             $documentos[$resumen->rsmnTipoDocInteger]= [
                 'nombre' => $resumen->dcvNombreTipoDoc,
+                'tipo_doc' => $resumen->rsmnTipoDocInteger,
+                'tipo_ingreso_doc' => $resumen->dcvTipoIngresoDoc,
                 'total_documentos' => $resumen->rsmnTotDoc,
                 'monto_exento' => $resumen->rsmnMntExe,
                 'monto_neto' => $resumen->rsmnMntNeto,
