@@ -30,7 +30,8 @@ class CompraServiceTest extends TestCase
         $this->mes = $_ENV['TEST_MES'];
 
         $credential = new APICredential($api_rut, $api_password, new APICredentialAttributes(['dv' => $api_dv]));
-        $this->api_client = new SIIAPI($credential);
+        $token_captcha = $_ENV['SII_TOKEN_CAPTCHA'];
+        $this->api_client = new SIIAPI($credential, $token_captcha);
     }
 
     public function test_libro()
@@ -38,6 +39,7 @@ class CompraServiceTest extends TestCase
         $libro_compra = $this->api_client->Compras()->Libro($this->periodo, $this->mes);
 
         $libro_data = $libro_compra->toArray();
+        fwrite(STDERR, print_r($libro_data, TRUE));
 
         $this->assertTrue(!$libro_compra->isEmpty());
     }	

@@ -30,15 +30,17 @@ class VentaServiceTest extends TestCase
         $this->mes = $_ENV['TEST_MES'];
 
         $credential = new APICredential($api_rut, $api_password, new APICredentialAttributes(['dv' => $api_dv]));
-        $this->api_client = new SIIAPI($credential);
+        $token_captcha = $_ENV['SII_TOKEN_CAPTCHA'];
+        $this->api_client = new SIIAPI($credential, $token_captcha);
     }
 
     public function test_libro()
     {
         $libro = $this->api_client->Ventas()->Libro($this->periodo, $this->mes);
 
-        $libro_data = $libro->toArray();
+        $libro_data = $libro->detalle();
+        fwrite(STDERR, print_r($libro_data, TRUE));
 
-        $this->assertFalse($libro->isEmpty());
+        $this->assertNotEmpty($libro_data);
     }	
 }

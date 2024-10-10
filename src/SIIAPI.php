@@ -15,24 +15,26 @@ use Jsanbae\SIIAPI\Services\CompraService;
 class SIIAPI
 {
     private $credential;
+    private $token_captcha;
     private $auth_cookies_jar;
 
-    public function __construct(APICredential $_credential)
+    public function __construct(APICredential $_credential, string $_token_captcha)
     {
         $this->credential = $_credential;
+        $this->token_captcha = $_token_captcha;
         $this->auth_cookies_jar = (new Auth($this->credential))->getAuthCookiesJar();
     }
 
     public function Compras():Service
     {
-        $endpoint = new Compras($this->credential, $this->auth_cookies_jar);
+        $endpoint = new Compras($this->credential, $this->auth_cookies_jar, $this->token_captcha);
         
         return new CompraService($endpoint);
     }
 
     public function Ventas():Service
     {
-        $endpoint = new Ventas($this->credential, $this->auth_cookies_jar);
+        $endpoint = new Ventas($this->credential, $this->auth_cookies_jar, $this->token_captcha);
         
         return new VentaService($endpoint);
     }

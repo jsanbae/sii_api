@@ -21,13 +21,15 @@ abstract class RCV implements Endpoint
     private $csessionid;
     private $auth_cookies_jar;
     private $type;
+    private $token_captcha;
 
-    public function __construct(APICredential $_credential, CookieJar $_auth_cookies_jar, string $_type)
+    public function __construct(APICredential $_credential, CookieJar $_auth_cookies_jar, string $_type, string $_token_captcha)
     {
         $this->credential = $_credential;
         $this->auth_cookies_jar = $_auth_cookies_jar;
         $this->csessionid = $_auth_cookies_jar->getCookieByName(AuthConstants::CSESSIONID_COOKIE_NAME)->getValue();
         $this->type = $_type;
+        $this->token_captcha = $_token_captcha;
     }
 
     public function LibroResumen(int $_periodo, int $_mes)
@@ -88,11 +90,13 @@ abstract class RCV implements Endpoint
         if ($this->type == RCVType::COMPRA) {
             $namespace = RCVConstants::LIBRO_COMPRAS_DETALLE_NAMESPACE;
             $endpoint = RCVConstants::LIBRO_COMPRAS_DETALLE_ENDPOINT;
+            $accion_recaptcha = "RCV_DETC";
         } 
         
         if ($this->type == RCVType::VENTA) {
             $namespace = RCVConstants::LIBRO_VENTAS_DETALLE_NAMESPACE;
             $endpoint = RCVConstants::LIBRO_VENTAS_DETALLE_ENDPOINT;
+            $accion_recaptcha = "RCV_DETV";
         }
         
         if (!isset($namespace)) throw new \InvalidArgumentException("Tipo de libro " . $this->type . " no soportado");
@@ -118,7 +122,9 @@ abstract class RCV implements Endpoint
                         "operacion" => $this->type,
                         // "estadoContab" => "",
                         // "operacion" => "",
-                        "codTipoDoc" => $_tipo_doc
+                        "codTipoDoc" => $_tipo_doc,
+                        "accionRecaptcha" => $accion_recaptcha,
+                        "tokenRecaptcha" =>	$this->token_captcha
                     ],
                     'metaData' => [
                         'namespace' => $namespace,
