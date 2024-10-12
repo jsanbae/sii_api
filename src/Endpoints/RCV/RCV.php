@@ -54,7 +54,7 @@ abstract class RCV implements Endpoint
                 ],
                 RequestOptions::JSON => [
                     'data' => [
-                        'rutEmisor' => $this->credential->getUser(),
+                        'rutEmisor' => $this->credential->getUsername(),
                         'dvEmisor' => strtoupper($this->credential->attributes()->getByName('dv')),
                         "ptributario" => $periodo_tributario,
                         "estadoContab" => "REGISTRO",
@@ -115,7 +115,7 @@ abstract class RCV implements Endpoint
                 ],
                 RequestOptions::JSON => [
                     'data' => [
-                        'rutEmisor' => $this->credential->getUser(),
+                        'rutEmisor' => $this->credential->getUsername(),
                         'dvEmisor' => $this->credential->attributes()->getByName('dv'),
                         "ptributario" => $periodo_tributario,
                         "estadoContab" => "REGISTRO",

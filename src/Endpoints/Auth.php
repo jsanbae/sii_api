@@ -45,7 +45,7 @@ class Auth implements Endpoint
                     'Referer' => AuthConstants::LOGIN_ENDPOINT,
                 ],
                 RequestOptions::FORM_PARAMS => [
-                    'rut' => $this->crendential->getUser(),
+                    'rut' => $this->crendential->getUsername(),
                     'dv' => strtoupper($this->crendential->attributes()->getByName('dv')),
                     'clave' => $this->crendential->getPassword(),
                     'referencia' => AuthConstants::LOGIN_REFERENCE,

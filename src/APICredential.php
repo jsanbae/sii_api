@@ -7,20 +7,20 @@ use Jsanbae\SIIAPI\Contracts\Arrayable;
 
 class APICredential implements Arrayable
 {
-    private $user;
+    private $username;
     private $password;
     private $attributes;
 
-    public function __construct(string $_user, string $_password, APICredentialAttributes $_attributes = null)
+    public function __construct(string $_username, string $_password, APICredentialAttributes $_attributes = null)
     {
-        $this->user = $_user;
+        $this->username = $_username;
         $this->password = $_password;
         $this->attributes = $_attributes;
     }
 
-    public function getUser(): string
+    public function getUsername(): string
     {
-        return $this->user;
+        return $this->username;
     }
 
     public function getPassword(): string
@@ -36,8 +36,8 @@ class APICredential implements Arrayable
     public function toArray(): array
     {
         return [
-            'user' => $this->user,
-            'password' => $this->password,
+            'username' => $this->getUsername(),
+            'password' => $this->getPassword(),
             'attributes' => $this->attributes->toArray()
         ];
     }
