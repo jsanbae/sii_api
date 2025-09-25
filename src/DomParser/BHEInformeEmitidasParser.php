@@ -18,6 +18,8 @@ class BHEInformeEmitidasParser
         'dvreceptor' => "string", 
         'nombrereceptor' => "string", 
         'totalhonorarios' => "int", 
+        'retencion_emisor' => "int",
+        'retencion_receptor' => "int",
         'honorariosliquidos' => "int", 
         'estado' => "string", 
         'fechaanulacion' => "date", 
@@ -70,17 +72,19 @@ class BHEInformeEmitidasParser
     
         // Dividir por líneas
         $lineas = explode("\n", $this->body);
-        
+        $regex = '/arr_informe_mensual\[\'([a-zA-Z0-9_]+)\'\]\s*=\s*(.*?);$/';
+        // $regex = "/arr_informe_mensual\[\s*'([a-z_]+?)_(\d+)'\s*]\s*=\s*(.+?);/i";
+
         foreach ($lineas as $linea) {
             $linea = trim($linea);
             
             // Buscar asignaciones de arr_informe_mensual
-            if (preg_match('/arr_informe_mensual\[\'([^\']+)\'\]\s*=\s*(.*?);$/', $linea, $match)) {
+            if (preg_match($regex, $linea, $match)) {
                 $claveCompleta = $match[1];
                 $valorRaw = trim($match[2]);
                 
                 // Extraer el nombre del campo y el número de fila
-                if (preg_match('/^([a-zA-Z]+)_(\d+)$/', $claveCompleta, $claveMatch)) {
+                if (preg_match('/^([a-z_]+)_(\d+)$/', $claveCompleta, $claveMatch)) {
                     $campo = $claveMatch[1];  // Ej: 'nroboleta'
                     $fila = $claveMatch[2];   // Ej: '1'
                     
