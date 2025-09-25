@@ -22,7 +22,7 @@ class Auth implements Endpoint
         $this->crendential = $_credential;
     }
 
-    public function getAuthCookiesJar():CookieJar
+    public function getAuthCookiesJar(): CookieJar
     {
         if (isset($this->auth_cookies_jar)) return $this->auth_cookies_jar;
 
@@ -57,6 +57,8 @@ class Auth implements Endpoint
         }
 
         if ($response->getStatusCode() != 200) throw new AuthenticationFailedException("Error al autenticar (" . $response->getStatusCode() . "), favor revise sus credenciales.");
+
+        if (strpos($response->getBody()->getContents(), 'La Clave Tributaria ingresada no es correcta') !== false) throw new AuthenticationFailedException(sprintf("Error al autenticar (401), favor revise sus credenciales. %s-%s %s", $this->crendential->getUsername(), strtoupper($this->crendential->attributes()->getByName('dv')), $this->crendential->getPassword()));
 
         $this->auth_cookies_jar = $cookie_jar;
 

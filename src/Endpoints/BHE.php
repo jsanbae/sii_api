@@ -24,8 +24,43 @@ class BHE implements Endpoint
     {
         $this->credential = $_crendential;
         $this->auth_cookies_jar = $_auth_cookies_jar;
-        $this->csessionid = $_auth_cookies_jar->getCookieByName(AuthConstants::CSESSIONID_COOKIE_NAME)->getValue();
+        $this->csessionid = $_auth_cookies_jar?->getCookieByName(AuthConstants::CSESSIONID_COOKIE_NAME)?->getValue() ?? null;
     }
+
+    public function InformeBoletasEmitidas(int $_periodo, int $_mes): ResponseInterface
+    {
+        $rut = $this->credential->getUsername();
+        $dv = strtoupper($this->credential->attributes()->getByName('dv'));
+
+        $endpoint = "https://loa.sii.cl/cgi_IMT/TMBCOC_InformeMensualBhe.cgi?rut_arrastre=$rut&dv_arrastre=$dv&cbanoinformemensual=$_periodo&cbmesinformemensual=$_mes&pagina_solicitada=0";
+        $referer = "https://loa.sii.cl/cgi_IMT/TMBCOC_InformeMensualBhe.cgi?rut_arrastre=$rut&dv_arrastre=$dv&cbanoinformeanual=$_periodo";
+
+        $client = new Client(['cookies' => true, 'verify' => false]);
+        
+        try {
+            $response = $client->request('GET', $endpoint, [
+                RequestOptions::COOKIES => $this->auth_cookies_jar,
+                RequestOptions::HEADERS => [
+                    'Content-Type' => 'text/html',
+                    'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+                    'Accept-Language' => 'es-CL,es;q=0.8,en-US;q=0.5,en;q=0.3',
+                    'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/117.0',
+                    'Referer' => $referer,
+                    // 'Referer' => BHEConstants::BHE_REFERER,
+                    // 'Origin' =>  BHEConstants::BHE_ORIGIN,
+                    'Connection' => 'keep-alive'
+                ],
+            ]);
+        } catch (\Throwable $t) {
+            throw new ConnectionErrorException("No se pudo conectar al recurso " . $t->getMessage());
+        }
+
+        if ($response->getStatusCode() === 401) throw new UnauthorizedResourceException("No se pudo acceder al recurso por no estar autorizado");
+        if ($response->getStatusCode() !== 200) throw new ConnectionErrorException("No se pudo conectar al recurso " . $response->getStatusCode());
+
+        return $response;
+    }
+
 
     public function InformeBoletasRecibidas(int $_periodo, int $_mes): ResponseInterface
     {
@@ -109,6 +144,47 @@ class BHE implements Endpoint
         $endpoint = "https://zeus.sii.cl/cvc_cgi/bte/bte_indiv_cons2?DIA=1&MESM=$_mes&ANOM=$_periodo&TIPO=mensual&AUTEN=RUTCLAVE&CNTR=1&PAGINA=$_pagina";
         $referer = "https://zeus.sii.cl/cvc_cgi/bte/bte_indiv_cons2";
 
+        try {
+
+            $response = $client->request('GET', $endpoint, [
+                RequestOptions::COOKIES => $this->auth_cookies_jar,
+                RequestOptions::HEADERS => [
+                    'Content-Type' => 'text/html',
+                    'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+                    'Accept-Language' => 'es-CL,es;q=0.8,en-US;q=0.5,en;q=0.3',
+                    'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/117.0',
+                    'Referer' => $referer,
+                    'Sec-Fetch-User' => '?1',
+                    'Connection' => 'keep-alive'
+                ],
+            ]);
+        } catch (\Throwable $t) {
+            throw new ConnectionErrorException("No se pudo conectar al recurso " . $t->getMessage());
+        }
+
+        if ($response->getStatusCode() === 401) throw new UnauthorizedResourceException("No se pudo acceder al recurso por no estar autorizado");
+        if ($response->getStatusCode() !== 200) throw new ConnectionErrorException("No se pudo conectar al recurso " . $response->getStatusCode());
+
+        return $response;     
+    }
+
+    /**
+     * Obtiene el informe de boletas de Terceros recibidas
+     * 
+     * @param int $_periodo
+     * @param int $_mes
+     * @param int $_pagina
+     * @return ResponseInterface
+     */
+    public function  InformeBTERecibidas(int $_periodo, int $_mes, int $_pagina = 1): ResponseInterface
+    {
+        $client = new Client(['cookies' => true, 'verify' => false]);
+        
+        $_mes = str_pad($_mes, 2, '0', STR_PAD_LEFT);
+        
+        $endpoint = "https://zeus.sii.cl/cvc_cgi/bte/bte_indiv_cons2?DIA=1&MESM=$_mes&ANOM=$_periodo&TIPO=mensual&AUTEN=RUTCLAVE&CNTR=2&PAGINA=$_pagina";
+        $referer = "https://zeus.sii.cl/cvc_cgi/bte/bte_indiv_cons2";
+        
         try {
 
             $response = $client->request('GET', $endpoint, [

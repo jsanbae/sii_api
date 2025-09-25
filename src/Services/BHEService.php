@@ -7,9 +7,10 @@ use Jsanbae\SIIAPI\Concerns\Comunas;
 use Jsanbae\SIIAPI\Concerns\BoletaHonorarioMapper;
 use Jsanbae\SIIAPI\Constants\DocTypes;
 use Jsanbae\SIIAPI\Contracts\Libro;
+use Jsanbae\SIIAPI\DomParser\BHEInformeEmitidasParser;
 use Jsanbae\SIIAPI\DomParser\BTEInformeEmitidasParser;
 use Jsanbae\SIIAPI\DomParser\BTEInformeEmitidasSummaryParser;
-use Jsanbae\SIIAPI\DomParser\BHEInformeRecibidasParser;
+use Jsanbae\SIIAPI\DomParser\BTEInformeRecibidasParser;
 use Jsanbae\SIIAPI\Entities\LibroHonorarios;
 use Jsanbae\SIIAPI\Entities\LibroHonorariosDetalle;
 use Jsanbae\SIIAPI\Entities\LibroHonorariosResumen;
@@ -89,6 +90,42 @@ class BHEService extends Service
         }
 
         return $data;
+    }
+
+    /**
+     * Obtiene las boletas honorarios emitidas del informe de emitidas
+     * @param int $_periodo
+     * @param int $_mes
+     * @return array
+     */
+    public function BoletasHonorariosEmitidas(int $_periodo, int $_mes): array
+    {
+        $boletas = [];
+
+        $responseBHE = $this->endpoint->InformeBoletasEmitidas($_periodo, $_mes);
+        $bodyBHE = $responseBHE->getBody()->getContents();
+
+        $boletas = (new BHEInformeEmitidasParser($bodyBHE))();
+
+        return $boletas;
+    }
+
+    /**
+     * Obtiene las boletas terceros recibidas del informe de recibidas
+     * @param int $_periodo
+     * @param int $_mes
+     * @return array
+     */
+    public function BoletasHonorariosTercerosRecibidas(int $_periodo, int $_mes): array
+    {
+        $boletas = [];
+
+        $responseBHE = $this->endpoint->InformeBTERecibidas($_periodo, $_mes);
+        $bodyBHE = $responseBHE->getBody()->getContents();
+
+        $boletas = (new BTEInformeRecibidasParser($bodyBHE))();
+
+        return $boletas;
     }
    
 }
