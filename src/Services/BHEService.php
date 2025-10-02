@@ -8,6 +8,7 @@ use Jsanbae\SIIAPI\Concerns\BoletaHonorarioMapper;
 use Jsanbae\SIIAPI\Constants\DocTypes;
 use Jsanbae\SIIAPI\Contracts\Libro;
 use Jsanbae\SIIAPI\DomParser\BHEInformeEmitidasParser;
+use Jsanbae\SIIAPI\DomParser\BHEInformeRecibidasParser;
 use Jsanbae\SIIAPI\DomParser\BTEInformeEmitidasParser;
 use Jsanbae\SIIAPI\DomParser\BTEInformeEmitidasSummaryParser;
 use Jsanbae\SIIAPI\DomParser\BTEInformeRecibidasParser;
