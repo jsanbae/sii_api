@@ -26,87 +26,122 @@ class BHEInformeRecibidasParser
         'codigobarras' => "string",
     ];
 
-    public function __construct(string $_body)
+    public function __construct(string $body)
     {
-        $this->body = $_body;
+        $this->body = $body;
     }
 
     public function __invoke():array
     {
-        return $this->BHEInformeRecibidasParser();
+        $boletas = $this->BHEInformeRecibidasParser();
+        
+        $boletas_formatted = [];
+        foreach ($boletas as $boleta) {
+            $boletas_formatted[] = $this->formatBoleta($boleta);
+        }
+
+        return $boletas_formatted;
     }
 
+
+    /**
+     * Obtiene las boletas del informe de recibidas
+     * desde el body del html que se obtiene de la respuesta de la API
+     * 
+     * arr_informe_mensual['nroboleta_1']            =       "135554";
+     * arr_informe_mensual['rutemisor_1']            =       "12883789";
+     * arr_informe_mensual['dvemisor_1']             =       "2";
+     * arr_informe_mensual['nombre_emisor_1']                =       "LUIS IGNACIO MANQUEHUAL MERY";
+     * arr_informe_mensual['fecha_boleta_1']         =       "25/09/2025";
+     * arr_informe_mensual['totalhonorarios_1']      =       formatMiles("25000",'.');
+     * arr_informe_mensual['honorariosliquidos_1']   =       formatMiles("25000",'.');
+     * arr_informe_mensual['es_soc_profesional_1']   =       "NO";
+     * arr_informe_mensual['cod_comuna_1']           =       "13101";
+     * arr_informe_mensual['retencion_receptor_1']   =       formatMiles("0",'.');
+     * arr_informe_mensual['estado_1']               =       "N";      
+     * arr_informe_mensual['fechaanulacion_1']               =       " ";        
+     * arr_informe_mensual['codigobarras_1']         =       "12883789135554A051FC";  
+     * 
+     * @return array
+     */
     public function BHEInformeRecibidasParser():array
     {
-        $doc = new DOMDocument();
-        $doc->loadHtml($this->body);
-
-        $scripts = $doc->getElementsByTagName('script');
-        if ($scripts->length == 0) return [];
-
-        $script = $this->findScript($scripts);
-        $script_str = $script->nodeValue;
-        $script_lines = explode("\n", $script_str);
-
         $boletas = [];
-        $current_boleta_index = 0;
-        foreach ($script_lines as $line) {
-            
-            if ("CantidadFilas=0;" === trim($line)) break;
+    
+        // Dividir por líneas
+        $lineas = explode("\n", $this->body);
+        $regex = '/arr_informe_mensual\[\'([a-zA-Z0-9_]+)\'\]\s*=\s*(.*?);$/';
+        // $regex = "/arr_informe_mensual\[\s*'([a-z_]+?)_(\d+)'\s*]\s*=\s*(.+?);/i";
 
-            if (strpos($line, 'nroboleta_') !== false) {
-                $boleta = [];
-                $current_boleta_index++;
-            }
-
-            if ($current_boleta_index < 1) continue;
+        foreach ($lineas as $linea) {
+            $linea = trim($linea);
             
-            $boleta = $this->extractDatafromLine($line, $boleta);
-            
-            if (count($boleta) === count($this->fields_configuration)) {
-                $boletas[] = $boleta;
-                $boleta = [];
+            // Buscar asignaciones de arr_informe_mensual
+            if (preg_match($regex, $linea, $match)) {
+                $claveCompleta = $match[1];
+                $valorRaw = trim($match[2]);
+                
+                // Extraer el nombre del campo y el número de fila
+                if (preg_match('/^([a-z_]+)_(\d+)$/', $claveCompleta, $claveMatch)) {
+                    $campo = $claveMatch[1];  // Ej: 'nroboleta'
+                    $fila = $claveMatch[2];   // Ej: '1'
+                    
+                    // Procesar diferentes formatos de valores
+                    if (preg_match('/^formatMiles\("([^"]*)",\'\.\'\)$/', $valorRaw, $valorMatch)) {
+                        $valor = $valorMatch[1];
+                    } elseif (preg_match('/^"([^"]*)"$/', $valorRaw, $valorMatch)) {
+                        $valor = $valorMatch[1];
+                    } elseif ($valorRaw === '""') {
+                        $valor = '';
+                    } else {
+                        $valor = $valorRaw;
+                    }
+                    
+                    // Crear la estructura anidada
+                    if (!isset($boletas[$fila])) {
+                        $boletas[$fila] = [];
+                    }
+                    
+                    $boletas[$fila][$campo] = trim($valor);
+                }
             }
         }
 
         return $boletas;
     }
 
-    private function extractDatafromLine(string $_data_line, array $_boleta = []):array
+    /**
+     * Formatea la boleta según la configuración de campos
+     * @param array $boleta
+     * @return array
+     */
+    private function formatBoleta(array $boleta = []): array
     {
-        $attributes = array_keys($this->fields_configuration);
+        $formatted_boleta = [];
 
-        if (!preg_match('/' . implode('|', $attributes) . '/i', $_data_line, $matches)) return $_boleta;
+        foreach ($this->fields_configuration as $key => $type) {
+            $formatted_boleta[$key] = $this->applyFormatValue($type, $boleta[$key]);
 
-        [$clave, $valor] = explode('=', $_data_line);
-        
-        $boleta_key = $matches[0];
-        $sanitized_value = trim(str_replace(['"', ';', '\'','(',')','formatMiles',',','.'], '', $valor));
-
-        if ($this->fields_configuration[$boleta_key] === "int" && !empty($sanitized_value)) $sanitized_value = (int) $sanitized_value;
-        if ($this->fields_configuration[$boleta_key] === "date" && !empty($sanitized_value)) $sanitized_value = DateTimeImmutable::createFromFormat('d/m/Y',$sanitized_value);
-        if ($this->fields_configuration[$boleta_key] === "string" && !empty($sanitized_value)) $sanitized_value = (string) $sanitized_value;
-        if (empty($sanitized_value) && $sanitized_value != "0") $sanitized_value = null;
-
-        $_boleta = array_merge($_boleta, [$boleta_key => $sanitized_value]);
-
-        return $_boleta;
-    }
-
-    // Obtiene del DOM el script correcto que se genera la vista
-    private function findScript(DOMNodeList $_scripts): ?DOMNode
-    {
-        
-        foreach ($_scripts as $index => $script) {
-            $script_str = $script->nodeValue;
-
-            if (strpos($script_str, 'var xml_values = new Array();') !== false) return $script;
-
-            $script = null;
+            if (empty($formatted_boleta[$key]) && $formatted_boleta[$key] != "0") $formatted_boleta[$key] = null;
         }
 
-        return $script;
+        return $formatted_boleta;
     }
 
+    /**
+     * Formatea el valor de la boleta según el tipo de dato
+     * @param string $type
+     * @param string $value
+     * @return mixed
+     */
+    private function applyFormatValue(string $type, string $value): mixed
+    {
+        if ($type === "int") return (int) $value;
+        if ($type === "date") return DateTimeImmutable::createFromFormat('d/m/Y',$value);
+        if ($type === "string") return (string) $value;
+        if (empty($value) && $value != "0") $value = null;
+
+        return $value;
+    }
 
 }
