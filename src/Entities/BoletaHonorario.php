@@ -31,10 +31,10 @@ class BoletaHonorario implements Arrayable
             int $_bruto, 
             int $_retencion, 
             int $_pagado, 
-            string $es_soc_profesional = null, 
-            int $cod_comuna = null, 
-            DateTimeImmutable $fecha_anulacion = null, 
-            string $codigo_barras = null
+            ?string $es_soc_profesional = null, 
+            ?int $cod_comuna = null, 
+            ?DateTimeImmutable $fecha_anulacion = null, 
+            ?string $codigo_barras = null
         )
     {
         $this->nro_boleta = $_nro_boleta;

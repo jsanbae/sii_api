@@ -2,6 +2,7 @@
 
 namespace Jsanbae\SIIAPI\Concerns;
 
+use DateTimeImmutable;
 use Jsanbae\SIIAPI\Entities\BoletaHonorario;
 
 trait BoletaHonorarioMapper {
@@ -26,6 +27,7 @@ trait BoletaHonorarioMapper {
         $bruto = isset($boleta['bruto']) ? $boleta['bruto'] : $boleta['totalhonorarios'];
         $retenido = isset($boleta['retenido']) ? $boleta['retenido'] : $boleta['retencion_receptor'];
         $pagado = isset($boleta['pagado']) ? $boleta['pagado'] : $boleta['honorariosliquidos'];
+        $fecha_anulacion = ($boleta['fechaanulacion']) ? DateTimeImmutable::createFromFormat('d/m/Y', $boleta['fechaanulacion']) : null;
         
         return new BoletaHonorario(
             $nro_boleta,
@@ -39,7 +41,7 @@ trait BoletaHonorarioMapper {
             $pagado,
             $boleta['es_soc_profesional'] ?? null,
             $boleta['cod_comuna'] ?? null,
-            $boleta['fechaanulacion'] ?? null,
+            $fecha_anulacion,
             $boleta['codigobarras'] ?? null
         );
 
