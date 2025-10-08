@@ -18,7 +18,7 @@ trait BoletaHonorarioMapper {
     }
 
     // Unify data from BHE and BTE
-    public function mapBoleta($boleta):BoletaHonorario 
+    public function mapBoleta($boleta): BoletaHonorario 
     {        
         $nro_boleta = isset($boleta['nro_boleta']) ? $boleta['nro_boleta'] : $boleta['nroboleta'];
         $nombre_emisor = isset($boleta['receptor_nombre']) ? $boleta['receptor_nombre'] : $boleta['nombre_emisor'];
@@ -27,7 +27,7 @@ trait BoletaHonorarioMapper {
         $bruto = isset($boleta['bruto']) ? $boleta['bruto'] : $boleta['totalhonorarios'];
         $retenido = isset($boleta['retenido']) ? $boleta['retenido'] : $boleta['retencion_receptor'];
         $pagado = isset($boleta['pagado']) ? $boleta['pagado'] : $boleta['honorariosliquidos'];
-        $fecha_anulacion = ($boleta['fechaanulacion']) ? DateTimeImmutable::createFromFormat('d/m/Y', $boleta['fechaanulacion']) : null;
+        $fecha_anulacion = (isset($boleta['fechaanulacion']) && $boleta['fechaanulacion']) ? DateTimeImmutable::createFromFormat('d/m/Y', $boleta['fechaanulacion']) : null;
         
         return new BoletaHonorario(
             $nro_boleta,
