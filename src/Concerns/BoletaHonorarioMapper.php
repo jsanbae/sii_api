@@ -27,8 +27,8 @@ trait BoletaHonorarioMapper {
         $bruto = isset($boleta['bruto']) ? $boleta['bruto'] : $boleta['totalhonorarios'];
         $retenido = isset($boleta['retenido']) ? $boleta['retenido'] : $boleta['retencion_receptor'];
         $pagado = isset($boleta['pagado']) ? $boleta['pagado'] : $boleta['honorariosliquidos'];
-        $fecha_anulacion = (isset($boleta['fechaanulacion']) && $boleta['fechaanulacion']) ? DateTimeImmutable::createFromFormat('d/m/Y', $boleta['fechaanulacion']) : null;
-        
+        $fecha_anulacion = (isset($boleta['fechaanulacion']) && $boleta['fechaanulacion']!== false) ? $boleta['fechaanulacion'] : null;
+
         return new BoletaHonorario(
             $nro_boleta,
             $boleta['estado'],
