@@ -27,7 +27,10 @@ abstract class RCV implements Endpoint
     {
         $this->credential = $_credential;
         $this->auth_cookies_jar = $_auth_cookies_jar;
-        $this->csessionid = $_auth_cookies_jar->getCookieByName(AuthConstants::CSESSIONID_COOKIE_NAME)->getValue();
+        $this->csessionid = $_auth_cookies_jar->getCookieByName(AuthConstants::CSESSIONID_COOKIE_NAME)?->getValue();
+
+        if (is_null($this->csessionid)) throw new \InvalidArgumentException("No se pudo obtener el csessionid");
+        
         $this->type = $_type;
         $this->token_captcha = $_token_captcha;
     }
