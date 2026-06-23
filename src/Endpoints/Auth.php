@@ -108,8 +108,39 @@ class Auth implements Endpoint
         return $response;
     }
 
-    public function Logout()
+    public function Logout(): ResponseInterface
     {
+        $cookie_jar = $this->getAuthCookiesJar();
+        $client = new Client(['cookies' => true, 'verify' => false]);
 
+        try {
+            $response = $client->request('GET', AuthConstants::LOGOUT_ENDPOINT, [
+                RequestOptions::COOKIES => $cookie_jar,
+                RequestOptions::HEADERS => [
+                    'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/117.0',
+                    'Accept' => 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
+                    'Accept-Language' => 'es-US,es-419;q=0.9,es;q=0.8,en;q=0.7',
+                    'Referer' => AuthConstants::LOGOUT_REFERER,
+                    'Sec-Fetch-Dest' => 'document',
+                    'Sec-Fetch-Mode' => 'navigate',
+                    'Sec-Fetch-Site' => 'same-site',
+                    'Sec-Fetch-User' => '?1',
+                    'Upgrade-Insecure-Requests' => '1',
+                    'sec-ch-ua' => '"Google Chrome";v="149", "Chromium";v="149", "Not)A;Brand";v="24"',
+                    'sec-ch-ua-mobile' => '?0',
+                    'sec-ch-ua-platform' => '"Windows"',
+                ],
+            ]);
+        } catch (\Throwable $t) {
+            throw new ConnectionErrorException("No se pudo conectar al recurso " . $t->getMessage());
+        }
+
+        if ($response->getStatusCode() != 200) {
+            throw new AuthenticationFailedException("Error al cerrar sesión (" . $response->getStatusCode() . ").");
+        }
+
+        unset($this->auth_cookies_jar);
+
+        return $response;
     }
 }
