@@ -64,6 +64,19 @@ class SIIAPI
     }
 
     /**
+     * Cierra la sesión SII asociada a esta instancia.
+     */
+    public function logout(): void
+    {
+        if (!isset($this->auth_cookies_jar)) {
+            return;
+        }
+
+        (new Auth($this->credential))->Logout($this->auth_cookies_jar);
+        unset($this->auth_cookies_jar);
+    }
+
+    /**
      * Verifica si el token de captcha está configurado
      * 
      * @throws \Exception

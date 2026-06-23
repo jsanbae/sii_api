@@ -108,9 +108,9 @@ class Auth implements Endpoint
         return $response;
     }
 
-    public function Logout(): ResponseInterface
+    public function Logout(?CookieJar $cookie_jar = null): ResponseInterface
     {
-        $cookie_jar = $this->getAuthCookiesJar();
+        $cookie_jar = $cookie_jar ?? $this->getAuthCookiesJar();
         $client = new Client(['cookies' => true, 'verify' => false]);
 
         try {
