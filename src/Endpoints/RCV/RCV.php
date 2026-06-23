@@ -10,9 +10,9 @@ use Jsanbae\SIIAPI\Contracts\Endpoint;
 use Jsanbae\SIIAPI\Exceptions\ConnectionErrorException;
 use Jsanbae\SIIAPI\Exceptions\UnauthorizedResourceException;
 
-use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
 use GuzzleHttp\Cookie\CookieJar;
+use Jsanbae\SIIAPI\Http\SiiHttpClientFactory;
 use \Psr\Http\Message\ResponseInterface;
 
 abstract class RCV implements Endpoint
@@ -37,7 +37,7 @@ abstract class RCV implements Endpoint
 
     public function LibroResumen(int $_periodo, int $_mes)
     {
-        $client = new Client(['cookies' => true, 'verify' => false]);
+        $client = SiiHttpClientFactory::make(['cookies' => true]);
         
         $mes = str_pad($_mes, 2, '0', STR_PAD_LEFT);
 
@@ -84,7 +84,7 @@ abstract class RCV implements Endpoint
 
     public function LibroDetalleByDocType(int $_tipo_doc, int $_periodo, int $_mes): ResponseInterface
     {
-        $client = new Client(['cookies' => true, 'verify' => false]);
+        $client = SiiHttpClientFactory::make(['cookies' => true]);
         
         $_mes = str_pad($_mes, 2, '0', STR_PAD_LEFT);
         

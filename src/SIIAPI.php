@@ -18,7 +18,7 @@ class SIIAPI
     private $token_captcha;
     private $auth_cookies_jar;
 
-    public function __construct(APICredential $_credential, ?string $_token_captcha =  null)
+    public function __construct(APICredential $_credential, ?string $_token_captcha = null)
     {
         $this->credential = $_credential;
         $this->token_captcha = $_token_captcha;

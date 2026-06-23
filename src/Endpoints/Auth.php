@@ -7,8 +7,8 @@ use Jsanbae\SIIAPI\Contracts\Endpoint;
 use Jsanbae\SIIAPI\Constants\Auth as AuthConstants;
 use Jsanbae\SIIAPI\Exceptions\AuthenticationFailedException;
 use Jsanbae\SIIAPI\Exceptions\ConnectionErrorException;
+use Jsanbae\SIIAPI\Http\SiiHttpClientFactory;
 
-use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
 use GuzzleHttp\Cookie\CookieJar;
 use Psr\Http\Message\ResponseInterface;
@@ -17,7 +17,7 @@ class Auth implements Endpoint
 {
     private $crendential;
     private $auth_cookies_jar;
-    
+
     public function __construct(APICredential $_credential)
     {
         $this->crendential = $_credential;
@@ -59,7 +59,7 @@ class Auth implements Endpoint
     public function Login(): ResponseInterface 
     {
         $cookie_jar = new CookieJar();
-        $client = new Client(['cookies' => $cookie_jar, 'verify' => false]);
+        $client = SiiHttpClientFactory::make(['cookies' => $cookie_jar]);
         
         try {
             $response = $client->request('POST', AuthConstants::LOGIN_ENDPOINT, [
@@ -111,7 +111,7 @@ class Auth implements Endpoint
     public function Logout(?CookieJar $cookie_jar = null): ResponseInterface
     {
         $cookie_jar = $cookie_jar ?? $this->getAuthCookiesJar();
-        $client = new Client(['cookies' => true, 'verify' => false]);
+        $client = SiiHttpClientFactory::make(['cookies' => true]);
 
         try {
             $response = $client->request('GET', AuthConstants::LOGOUT_ENDPOINT, [

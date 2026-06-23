@@ -7,8 +7,8 @@ use Jsanbae\SIIAPI\Contracts\Endpoint;
 use Jsanbae\SIIAPI\Constants\BHE as BHEConstants;
 use Jsanbae\SIIAPI\Constants\Auth as AuthConstants;
 use Jsanbae\SIIAPI\Exceptions\UnauthorizedResourceException;
+use Jsanbae\SIIAPI\Http\SiiHttpClientFactory;
 
-use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
 use GuzzleHttp\Cookie\CookieJar;
 use Jsanbae\SIIAPI\Exceptions\ConnectionErrorException;
@@ -35,7 +35,7 @@ class BHE implements Endpoint
         $endpoint = "https://loa.sii.cl/cgi_IMT/TMBCOC_InformeMensualBhe.cgi?rut_arrastre=$rut&dv_arrastre=$dv&cbanoinformemensual=$_periodo&cbmesinformemensual=$_mes&pagina_solicitada=0";
         $referer = "https://loa.sii.cl/cgi_IMT/TMBCOC_InformeMensualBhe.cgi?rut_arrastre=$rut&dv_arrastre=$dv&cbanoinformeanual=$_periodo";
 
-        $client = new Client(['cookies' => true, 'verify' => false]);
+        $client = SiiHttpClientFactory::make(['cookies' => true]);
         
         try {
             $response = $client->request('GET', $endpoint, [
@@ -70,7 +70,7 @@ class BHE implements Endpoint
         $endpoint = "https://loa.sii.cl/cgi_IMT/TMBCOC_InformeMensualBheRec.cgi?rut_arrastre=$rut&dv_arrastre=$dv&cbanoinformemensual=$_periodo&cbmesinformemensual=$_mes&pagina_solicitada=0";
         $referer = "https://loa.sii.cl/cgi_IMT/TMBCOC_InformeAnualBheRec.cgi?rut_arrastre=$rut&dv_arrastre=dv&cbanoinformeanual=$_periodo";
 
-        $client = new Client(['cookies' => true, 'verify' => false]);
+        $client = SiiHttpClientFactory::make(['cookies' => true]);
         
         try {
             $response = $client->request('GET', $endpoint, [
@@ -99,7 +99,7 @@ class BHE implements Endpoint
     public function BoletaRecibidaPDF(string $_codigo_barras, string $_cod39, string $_nombre_comuna): ResponseInterface 
     {
         $cookie_jar = new CookieJar();
-        $client = new Client(['cookies' => $cookie_jar, 'verify' => false]);
+        $client = SiiHttpClientFactory::make(['cookies' => $cookie_jar]);
 
         try {
             $response = $client->request('POST', 'https://loa.sii.cl/cgi_IMT/TMBCOT_ConsultaBoletaPdf.cgi', [
@@ -137,7 +137,7 @@ class BHE implements Endpoint
 
     public function  InformeBTEEmitidas(int $_periodo, int $_mes, int $_pagina = 1): ResponseInterface
     {
-        $client = new Client(['cookies' => true, 'verify' => false]);
+        $client = SiiHttpClientFactory::make(['cookies' => true]);
         
         $_mes = str_pad($_mes, 2, '0', STR_PAD_LEFT);
         
@@ -178,7 +178,7 @@ class BHE implements Endpoint
      */
     public function  InformeBTERecibidas(int $_periodo, int $_mes, int $_pagina = 1): ResponseInterface
     {
-        $client = new Client(['cookies' => true, 'verify' => false]);
+        $client = SiiHttpClientFactory::make(['cookies' => true]);
         
         $_mes = str_pad($_mes, 2, '0', STR_PAD_LEFT);
         
